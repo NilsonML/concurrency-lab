@@ -1,0 +1,25 @@
+Байткод `self.value += 1`:
+    LOAD_FAST            self
+    COPY                 
+    LOAD_ATTR            value
+    BINARY_OP            +=
+    SWAP                 
+    STORE_ATTR           value
+
+1) counter += 1, 8 потоков x 100000, ожидаем 800000
+   a.value += 1           без lock, switch=0.005s:   800000  потеряно 0
+   a.value += 1           без lock, switch=1e-06s:   800000  потеряно 0
+   чтение; f(); запись     без lock, switch=0.005s:   703743  потеряно 96257
+   чтение; f(); запись     без lock, switch=1e-06s:   405554  потеряно 394446
+   чтение; f(); запись     с lock,   switch=1e-06s:   800000  потеряно 0
+
+2) check-then-act, 10 снятий по 100 при балансе 100 (верный итог: 0)
+   threads без lock:           баланс = -900
+   threads с lock:             баланс = 0
+   asyncio без await внутри:   баланс = 0
+   asyncio с await, без lock:  баланс = -900
+   asyncio с await, с lock:    баланс = 0
+
+3) Deadlock
+   разный порядок захвата: T1: DEADLOCK (не дождался второго лока); T2: ok
+   единый порядок захвата: T1: ok; T2: ok

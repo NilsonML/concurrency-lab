@@ -1,0 +1,61 @@
+{
+  "system": {
+    "python": "3.13.16",
+    "implementation": "CPython",
+    "gil_enabled": true,
+    "cpu_count": 2,
+    "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+    "machine": "x86_64"
+  },
+  "results": [
+    {
+      "kind": "thread",
+      "n": 100,
+      "create_s": 0.009132604000001265,
+      "rss_delta_mb": 1.52734375,
+      "kb_per_unit": 15.64
+    },
+    {
+      "kind": "thread",
+      "n": 1000,
+      "create_s": 0.09329660800005968,
+      "rss_delta_mb": 15.19140625,
+      "kb_per_unit": 15.556
+    },
+    {
+      "kind": "thread",
+      "n": 2000,
+      "create_s": 0.17902621199993973,
+      "rss_delta_mb": 27.38671875,
+      "kb_per_unit": 14.022
+    },
+    {
+      "kind": "coroutine",
+      "n": 100,
+      "create_s": 0.00031297500004257017,
+      "rss_delta_mb": 0.0703125,
+      "kb_per_unit": 0.72
+    },
+    {
+      "kind": "coroutine",
+      "n": 1000,
+      "create_s": 0.002518131999977413,
+      "rss_delta_mb": 0.05078125,
+      "kb_per_unit": 0.052
+    },
+    {
+      "kind": "coroutine",
+      "n": 10000,
+      "create_s": 0.03252031499994246,
+      "rss_delta_mb": 4.29296875,
+      "kb_per_unit": 0.4396
+    },
+    {
+      "kind": "coroutine",
+      "n": 100000,
+      "create_s": 0.6122333570000364,
+      "rss_delta_mb": 78.30078125,
+      "kb_per_unit": 0.8018
+    }
+  ]
+}

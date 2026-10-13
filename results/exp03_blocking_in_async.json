@@ -1,0 +1,54 @@
+{
+  "system": {
+    "python": "3.13.16",
+    "implementation": "CPython",
+    "gil_enabled": true,
+    "cpu_count": 2,
+    "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+    "machine": "x86_64"
+  },
+  "results": [
+    {
+      "scenario": "asyncio.sleep (ok)",
+      "total_s": 0.3010162530000571,
+      "max_lag_ms": 27.41699399996378,
+      "p50_lag_ms": 0.21464899998591136,
+      "ticks": 32
+    },
+    {
+      "scenario": "time.sleep (BAD)",
+      "total_s": 0.900815894999937,
+      "max_lag_ms": 890.7437029999983,
+      "p50_lag_ms": 0.22789750005358655,
+      "ticks": 6
+    },
+    {
+      "scenario": "to_thread(sleep) (ok)",
+      "total_s": 0.30222860100002436,
+      "max_lag_ms": 2.0318450000331723,
+      "p50_lag_ms": 0.18724400001701724,
+      "ticks": 35
+    },
+    {
+      "scenario": "cpu in loop (BAD)",
+      "total_s": 0.2721574079999982,
+      "max_lag_ms": 262.11982600000283,
+      "p50_lag_ms": 0.21441850003611762,
+      "ticks": 6
+    },
+    {
+      "scenario": "to_thread(cpu)",
+      "total_s": 0.3427147369999375,
+      "max_lag_ms": 50.26746600003662,
+      "p50_lag_ms": 5.388476999996783,
+      "ticks": 19
+    },
+    {
+      "scenario": "process pool(cpu) (ok)",
+      "total_s": 0.15920338199998696,
+      "max_lag_ms": 4.944303000002037,
+      "p50_lag_ms": 0.15045650002321054,
+      "ticks": 20
+    }
+  ]
+}

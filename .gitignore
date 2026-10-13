@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+.DS_Store
+.idea/
+.vscode/
+# results/ НЕ игнорируем: графики и JSON — это и есть результат исследования,
+# их должен видеть читатель README прямо на GitHub.

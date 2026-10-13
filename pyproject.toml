@@ -1,0 +1,33 @@
+# pyproject.toml — единая точка конфигурации Python-проекта (PEP 518/621).
+# Почему не requirements.txt: pyproject описывает и сам пакет (имя, версия,
+# зависимости), и настройки инструментов (pytest, ruff) в одном месте.
+# Это современный стандарт; requirements.txt остался в основном для "заморозки"
+# точных версий окружения (pip freeze), а не для описания проекта.
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "concurrency-lab"
+version = "0.1.0"
+description = "Исследование: threading vs multiprocessing vs asyncio в Python"
+requires-python = ">=3.11"   # asyncio.TaskGroup и asyncio.timeout появились в 3.11
+dependencies = [
+    "httpx>=0.27",      # HTTP-клиент с ОДИНАКОВЫМ sync и async API -> честное сравнение
+    "matplotlib>=3.8",  # графики
+    "psutil>=5.9",      # замер памяти (RSS) кроссплатформенно
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.5"]
+
+[tool.setuptools.packages.find]
+where = ["src"]   # src-layout: см. docs/decisions.md, почему так
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
