@@ -76,7 +76,7 @@ def plot_io_bound() -> None:
         )
         if not pts:
             continue
-        x, y, e = zip(*pts)
+        x, y, e = zip(*pts, strict=True)
         ax.errorbar(
             x,
             y,
@@ -91,7 +91,7 @@ def plot_io_bound() -> None:
 
     theory = sorted((int(k), v) for k, v in data["theoretical_min"].items())
     ax.plot(
-        *zip(*theory),
+        *zip(*theory, strict=True),
         linestyle="--",
         color=MUTED,
         linewidth=1.2,
@@ -128,7 +128,7 @@ def plot_cpu_bound() -> None:
     }
     approaches = ["threads", "processes"]
     width = 0.34
-    for i, (wl, wl_label) in enumerate(workloads.items()):
+    for i, wl in enumerate(workloads):
         seq = next(
             m["mean"]
             for m in ms
@@ -200,7 +200,7 @@ def plot_memory() -> None:
         ("coroutine", "корутины (asyncio)", COLORS["asyncio"]),
     ):
         pts = [(r["n"], max(r["rss_delta_mb"], 0.05)) for r in data if r["kind"] == kind]
-        x, y = zip(*pts)
+        x, y = zip(*pts, strict=True)
         ax.plot(x, y, marker="o", markersize=6, linewidth=2, color=color, label=label)
         ax.annotate(
             f"{y[-1]:.0f} МБ на {x[-1]:,}".replace(",", " "),
