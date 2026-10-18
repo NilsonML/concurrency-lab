@@ -1,5 +1,7 @@
 # concurrency-lab: threading vs multiprocessing vs asyncio в Python
 
+[![CI](https://github.com/NilsonML/concurrency-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/NilsonML/concurrency-lab/actions/workflows/ci.yml)
+
 Экспериментальное исследование: когда в Python использовать потоки, процессы
 или asyncio. Пять воспроизводимых экспериментов, замеры с повторами
 (mean ± std), разбор ошибок, найденных по ходу работы.
@@ -190,7 +192,7 @@ free-threaded сборке, в PyPy или в будущей версии код
 ## Воспроизведение
 
 ```bash
-git clone https://github.com/<you>/concurrency-lab && cd concurrency-lab
+git clone https://github.com/NilsonML/concurrency-lab && cd concurrency-lab
 python -m venv .venv && source .venv/bin/activate     # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
 
@@ -219,5 +221,3 @@ concurrency-lab/
     ├── decisions.md    # почему сделано так, а не иначе
     └── notes/theory.md # конспект теории: GIL, event loop, гонки, шпаргалка выбора
 ```
-#   c o n c u r r e n c y - l a b  
- 
