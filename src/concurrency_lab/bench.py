@@ -32,7 +32,7 @@ class Measurement:
     name: str
     params: dict
     wall_times: list[float] = field(default_factory=list)  # "настенное" время, сек
-    cpu_times: list[float] = field(default_factory=list)   # CPU-время процесса, сек
+    cpu_times: list[float] = field(default_factory=list)  # CPU-время процесса, сек
 
     @property
     def mean(self) -> float:
@@ -73,7 +73,9 @@ def measure(name: str, fn: Callable[[], object], repeats: int = 3, **params) -> 
         fn()
         m.wall_times.append(time.perf_counter() - t0_wall)
         m.cpu_times.append(time.process_time() - t0_cpu)
-    print(f"  {name:<34} {m.mean:8.3f} ± {m.std:.3f} s   (cpu {statistics.mean(m.cpu_times):.3f} s)")
+    print(
+        f"  {name:<34} {m.mean:8.3f} ± {m.std:.3f} s   (cpu {statistics.mean(m.cpu_times):.3f} s)"
+    )
     return m
 
 
@@ -101,7 +103,9 @@ def system_info() -> dict:
     }
 
 
-def save_results(experiment: str, measurements: list[Measurement], extra: dict | None = None) -> Path:
+def save_results(
+    experiment: str, measurements: list[Measurement], extra: dict | None = None
+) -> Path:
     """Сохраняем сырые данные в JSON.
 
     Почему JSON, а не сразу картинку: графики можно перестроить в любой момент

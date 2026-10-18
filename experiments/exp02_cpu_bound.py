@@ -29,9 +29,11 @@ from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from concurrency_lab.bench import gil_enabled, measure, save_results
 from concurrency_lab.workloads import count_primes, hash_bytes, split_range
 
-PRIMES_UP_TO = 600_000   # подобрано так, чтобы последовательный прогон шёл ~1-3 c
-CHUNKS = 16              # кусков работы больше, чем воркеров -> балансировка нагрузки
-HASH_DATA = os.urandom(1_000_000)  # 1 МБ — заведомо больше порога, после которого hashlib отпускает GIL
+PRIMES_UP_TO = 600_000  # подобрано так, чтобы последовательный прогон шёл ~1-3 c
+CHUNKS = 16  # кусков работы больше, чем воркеров -> балансировка нагрузки
+HASH_DATA = os.urandom(
+    1_000_000
+)  # 1 МБ — заведомо больше порога, после которого hashlib отпускает GIL
 HASH_TASKS = 16
 HASH_ROUNDS = 60
 REPEATS = 3
@@ -90,29 +92,86 @@ def main() -> None:
 
     m = []
     print("\nA) Чистый Python (count_primes):")
-    m.append(measure("primes sequential", primes_sequential, REPEATS,
-                     workload="primes", approach="sequential", workers=1))
+    m.append(
+        measure(
+            "primes sequential",
+            primes_sequential,
+            REPEATS,
+            workload="primes",
+            approach="sequential",
+            workers=1,
+        )
+    )
     for w in workers_list:
-        m.append(measure(f"primes threads w={w}", lambda w=w: primes_pool(ThreadPoolExecutor, w),
-                         REPEATS, workload="primes", approach="threads", workers=w))
+        m.append(
+            measure(
+                f"primes threads w={w}",
+                lambda w=w: primes_pool(ThreadPoolExecutor, w),
+                REPEATS,
+                workload="primes",
+                approach="threads",
+                workers=w,
+            )
+        )
     for w in workers_list:
-        m.append(measure(f"primes processes w={w}", lambda w=w: primes_pool(ProcessPoolExecutor, w),
-                         REPEATS, workload="primes", approach="processes", workers=w))
+        m.append(
+            measure(
+                f"primes processes w={w}",
+                lambda w=w: primes_pool(ProcessPoolExecutor, w),
+                REPEATS,
+                workload="primes",
+                approach="processes",
+                workers=w,
+            )
+        )
 
     print("\nB) C-код, отпускающий GIL (hashlib.sha256):")
-    m.append(measure("hash sequential", hash_sequential, REPEATS,
-                     workload="hash", approach="sequential", workers=1))
+    m.append(
+        measure(
+            "hash sequential",
+            hash_sequential,
+            REPEATS,
+            workload="hash",
+            approach="sequential",
+            workers=1,
+        )
+    )
     for w in workers_list:
-        m.append(measure(f"hash threads w={w}", lambda w=w: hash_threads(w),
-                         REPEATS, workload="hash", approach="threads", workers=w))
+        m.append(
+            measure(
+                f"hash threads w={w}",
+                lambda w=w: hash_threads(w),
+                REPEATS,
+                workload="hash",
+                approach="threads",
+                workers=w,
+            )
+        )
     for w in workers_list:
-        m.append(measure(f"hash processes w={w}", lambda w=w: hash_processes(w),
-                         REPEATS, workload="hash", approach="processes", workers=w))
+        m.append(
+            measure(
+                f"hash processes w={w}",
+                lambda w=w: hash_processes(w),
+                REPEATS,
+                workload="hash",
+                approach="processes",
+                workers=w,
+            )
+        )
 
     tag = "" if gil_enabled() else "_nogil"
-    save_results(f"exp02_cpu_bound{tag}", m,
-                 {"config": {"primes_up_to": PRIMES_UP_TO, "chunks": CHUNKS,
-                             "hash_tasks": HASH_TASKS, "hash_rounds": HASH_ROUNDS}})
+    save_results(
+        f"exp02_cpu_bound{tag}",
+        m,
+        {
+            "config": {
+                "primes_up_to": PRIMES_UP_TO,
+                "chunks": CHUNKS,
+                "hash_tasks": HASH_TASKS,
+                "hash_rounds": HASH_ROUNDS,
+            }
+        },
+    )
 
 
 if __name__ == "__main__":

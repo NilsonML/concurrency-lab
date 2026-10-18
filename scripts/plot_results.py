@@ -31,14 +31,26 @@ COLORS = {
 }
 INK, MUTED, GRID = "#0b0b0b", "#52514e", "#e4e3df"
 
-plt.rcParams.update({
-    "figure.facecolor": "#fcfcfb", "axes.facecolor": "#fcfcfb",
-    "axes.edgecolor": GRID, "axes.labelcolor": MUTED, "text.color": INK,
-    "xtick.color": MUTED, "ytick.color": MUTED, "axes.grid": True,
-    "grid.color": GRID, "grid.linewidth": 0.8, "axes.spines.top": False,
-    "axes.spines.right": False, "font.size": 10, "axes.titlesize": 12,
-    "axes.titleweight": "bold", "legend.frameon": False,
-})
+plt.rcParams.update(
+    {
+        "figure.facecolor": "#fcfcfb",
+        "axes.facecolor": "#fcfcfb",
+        "axes.edgecolor": GRID,
+        "axes.labelcolor": MUTED,
+        "text.color": INK,
+        "xtick.color": MUTED,
+        "ytick.color": MUTED,
+        "axes.grid": True,
+        "grid.color": GRID,
+        "grid.linewidth": 0.8,
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+        "font.size": 10,
+        "axes.titlesize": 12,
+        "axes.titleweight": "bold",
+        "legend.frameon": False,
+    }
+)
 
 
 def load(name: str) -> dict:
@@ -57,17 +69,34 @@ def plot_io_bound() -> None:
         "processes": "процессы",
     }
     for approach, label in labels.items():
-        pts = sorted((m["params"]["concurrency"], m["mean"], m["std"])
-                     for m in ms if m["params"]["approach"] == approach)
+        pts = sorted(
+            (m["params"]["concurrency"], m["mean"], m["std"])
+            for m in ms
+            if m["params"]["approach"] == approach
+        )
         if not pts:
             continue
         x, y, e = zip(*pts)
-        ax.errorbar(x, y, yerr=e, marker="o", markersize=5, linewidth=2, capsize=3,
-                    color=COLORS[approach], label=label)
+        ax.errorbar(
+            x,
+            y,
+            yerr=e,
+            marker="o",
+            markersize=5,
+            linewidth=2,
+            capsize=3,
+            color=COLORS[approach],
+            label=label,
+        )
 
     theory = sorted((int(k), v) for k, v in data["theoretical_min"].items())
-    ax.plot(*zip(*theory), linestyle="--", color=MUTED, linewidth=1.2,
-            label="теоретический минимум ⌈N/c⌉·delay")
+    ax.plot(
+        *zip(*theory),
+        linestyle="--",
+        color=MUTED,
+        linewidth=1.2,
+        label="теоретический минимум ⌈N/c⌉·delay",
+    )
     seq = next(m["mean"] for m in ms if m["params"]["approach"] == "sequential")
     ax.axhline(seq, color=MUTED, linewidth=1, linestyle=":")
     ax.text(1.05, seq * 1.08, f"последовательно: {seq:.1f} c", color=MUTED, fontsize=9)
@@ -77,8 +106,10 @@ def plot_io_bound() -> None:
     ax.set_xlabel("конкурентность (одновременных запросов / воркеров)")
     ax.set_ylabel("время на 100 запросов, c (log)")
     cfg = data["config"]
-    ax.set_title(f"I/O-bound: {cfg['n_requests']} запросов, задержка сервера "
-                 f"{int(cfg['delay'] * 1000)} мс", loc="left")
+    ax.set_title(
+        f"I/O-bound: {cfg['n_requests']} запросов, задержка сервера {int(cfg['delay'] * 1000)} мс",
+        loc="left",
+    )
     ax.legend(loc="lower left", fontsize=9)
     fig.tight_layout()
     fig.savefig(RESULTS / "exp01_io_bound.png", dpi=150)
@@ -91,19 +122,35 @@ def plot_cpu_bound() -> None:
     cores = data["system"]["cpu_count"]
     fig, ax = plt.subplots(figsize=(8, 4.4))
 
-    workloads = {"primes": "чистый Python\n(count_primes)", "hash": "C-код, отпускает GIL\n(hashlib.sha256)"}
+    workloads = {
+        "primes": "чистый Python\n(count_primes)",
+        "hash": "C-код, отпускает GIL\n(hashlib.sha256)",
+    }
     approaches = ["threads", "processes"]
     width = 0.34
     for i, (wl, wl_label) in enumerate(workloads.items()):
-        seq = next(m["mean"] for m in ms if m["params"]["workload"] == wl
-                   and m["params"]["approach"] == "sequential")
+        seq = next(
+            m["mean"]
+            for m in ms
+            if m["params"]["workload"] == wl and m["params"]["approach"] == "sequential"
+        )
         for j, ap in enumerate(approaches):
-            m = next(m for m in ms if m["params"]["workload"] == wl
-                     and m["params"]["approach"] == ap and m["params"]["workers"] == cores)
+            m = next(
+                m
+                for m in ms
+                if m["params"]["workload"] == wl
+                and m["params"]["approach"] == ap
+                and m["params"]["workers"] == cores
+            )
             speedup = seq / m["mean"]
             x = i + (j - 0.5) * (width + 0.02)
-            ax.bar(x, speedup, width, color=COLORS[ap],
-                   label={"threads": "потоки", "processes": "процессы"}[ap] if i == 0 else None)
+            ax.bar(
+                x,
+                speedup,
+                width,
+                color=COLORS[ap],
+                label={"threads": "потоки", "processes": "процессы"}[ap] if i == 0 else None,
+            )
             ax.text(x, speedup + 0.04, f"{speedup:.2f}×", ha="center", color=INK, fontsize=10)
 
     ax.axhline(1, color=MUTED, linewidth=1, linestyle="--")
@@ -112,8 +159,10 @@ def plot_cpu_bound() -> None:
     ax.set_ylabel("ускорение относительно последовательного")
     ax.set_ylim(0, max(2.3, cores + 0.3))
     gil = "GIL включён" if data["system"]["gil_enabled"] else "GIL выключен"
-    ax.set_title(f"CPU-bound: {cores} воркера на {cores} ядрах, Python "
-                 f"{data['system']['python']} ({gil})", loc="left")
+    ax.set_title(
+        f"CPU-bound: {cores} воркера на {cores} ядрах, Python {data['system']['python']} ({gil})",
+        loc="left",
+    )
     ax.legend(loc="upper left")
     ax.grid(axis="x", visible=False)
     fig.tight_layout()
@@ -146,13 +195,22 @@ def plot_blocking() -> None:
 def plot_memory() -> None:
     data = load("exp05_memory_footprint")["results"]
     fig, ax = plt.subplots(figsize=(8, 4.4))
-    for kind, label, color in (("thread", "потоки", COLORS["threads"]),
-                               ("coroutine", "корутины (asyncio)", COLORS["asyncio"])):
+    for kind, label, color in (
+        ("thread", "потоки", COLORS["threads"]),
+        ("coroutine", "корутины (asyncio)", COLORS["asyncio"]),
+    ):
         pts = [(r["n"], max(r["rss_delta_mb"], 0.05)) for r in data if r["kind"] == kind]
         x, y = zip(*pts)
         ax.plot(x, y, marker="o", markersize=6, linewidth=2, color=color, label=label)
-        ax.annotate(f"{y[-1]:.0f} МБ на {x[-1]:,}".replace(",", " "), (x[-1], y[-1]),
-                    textcoords="offset points", xytext=(-10, 8), ha="right", color=INK, fontsize=9)
+        ax.annotate(
+            f"{y[-1]:.0f} МБ на {x[-1]:,}".replace(",", " "),
+            (x[-1], y[-1]),
+            textcoords="offset points",
+            xytext=(-10, 8),
+            ha="right",
+            color=INK,
+            fontsize=9,
+        )
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xlabel("сколько одновременно ожидающих единиц")

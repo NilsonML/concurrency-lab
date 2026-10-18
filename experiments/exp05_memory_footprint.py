@@ -29,7 +29,7 @@ import psutil
 
 from concurrency_lab.bench import RESULTS_DIR, system_info
 
-THREAD_COUNTS = [100, 1_000, 2_000]          # больше — рискованно упереться в лимиты ОС
+THREAD_COUNTS = [100, 1_000, 2_000]  # больше — рискованно упереться в лимиты ОС
 CORO_COUNTS = [100, 1_000, 10_000, 100_000]  # корутины можно в сотни тысяч
 
 
@@ -50,8 +50,13 @@ def measure_threads(n: int) -> dict:
     stop.set()
     for t in threads:
         t.join()
-    return {"kind": "thread", "n": n, "create_s": created,
-            "rss_delta_mb": after - before, "kb_per_unit": (after - before) * 1024 / n}
+    return {
+        "kind": "thread",
+        "n": n,
+        "create_s": created,
+        "rss_delta_mb": after - before,
+        "kb_per_unit": (after - before) * 1024 / n,
+    }
 
 
 def measure_coroutines(n: int) -> dict:
@@ -65,8 +70,13 @@ def measure_coroutines(n: int) -> dict:
         after = rss_mb()
         stop.set()
         await asyncio.gather(*tasks)
-        return {"kind": "coroutine", "n": n, "create_s": created,
-                "rss_delta_mb": after - before, "kb_per_unit": (after - before) * 1024 / n}
+        return {
+            "kind": "coroutine",
+            "n": n,
+            "create_s": created,
+            "rss_delta_mb": after - before,
+            "kb_per_unit": (after - before) * 1024 / n,
+        }
 
     return asyncio.run(run())
 
@@ -76,17 +86,22 @@ def main() -> None:
     for n in THREAD_COUNTS:
         r = measure_threads(n)
         results.append(r)
-        print(f"  threads    n={n:>7}: +{r['rss_delta_mb']:7.1f} MB  "
-              f"({r['kb_per_unit']:5.1f} KB/шт)  создание {r['create_s']:.3f} s")
+        print(
+            f"  threads    n={n:>7}: +{r['rss_delta_mb']:7.1f} MB  "
+            f"({r['kb_per_unit']:5.1f} KB/шт)  создание {r['create_s']:.3f} s"
+        )
     for n in CORO_COUNTS:
         r = measure_coroutines(n)
         results.append(r)
-        print(f"  coroutines n={n:>7}: +{r['rss_delta_mb']:7.1f} MB  "
-              f"({r['kb_per_unit']:5.1f} KB/шт)  создание {r['create_s']:.3f} s")
+        print(
+            f"  coroutines n={n:>7}: +{r['rss_delta_mb']:7.1f} MB  "
+            f"({r['kb_per_unit']:5.1f} KB/шт)  создание {r['create_s']:.3f} s"
+        )
 
     RESULTS_DIR.mkdir(exist_ok=True)
     (RESULTS_DIR / "exp05_memory_footprint.json").write_text(
-        json.dumps({"system": system_info(), "results": results}, indent=2, ensure_ascii=False))
+        json.dumps({"system": system_info(), "results": results}, indent=2, ensure_ascii=False)
+    )
     print("\n  -> сохранено в results/exp05_memory_footprint.json")
 
 

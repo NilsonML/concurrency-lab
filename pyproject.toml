@@ -31,3 +31,7 @@ testpaths = ["tests"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+
+[tool.ruff.lint]
+# E/W — стиль (PEP 8), F — реальные ошибки, I — порядок импортов, B — частые баги
+select = ["E", "W", "F", "I", "B"]

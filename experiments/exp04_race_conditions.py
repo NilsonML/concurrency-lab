@@ -40,7 +40,9 @@ class Counter:
     def increment_split(self) -> None:
         """Та же логика, но между чтением и записью есть вызов функции."""
         current = self.value
-        current = _plus_one(current)  # вызов функции = точка, где CPython проверяет "не пора ли отдать GIL"
+        current = _plus_one(
+            current
+        )  # вызов функции = точка, где CPython проверяет "не пора ли отдать GIL"
         self.value = current
 
 
@@ -95,9 +97,10 @@ def bank_threads(use_lock: bool) -> int:
 
     def withdraw() -> None:
         def critical() -> None:
-            if balance["value"] >= 100:          # check
-                time.sleep(0.001)                # тут поток почти наверняка переключится
-                balance["value"] -= 100          # act
+            if balance["value"] >= 100:  # check
+                time.sleep(0.001)  # тут поток почти наверняка переключится
+                balance["value"] -= 100  # act
+
         if use_lock:
             with lock:
                 critical()
@@ -120,12 +123,14 @@ async def bank_async(await_between: bool, use_lock: bool) -> int:
     async def critical() -> None:
         if balance["value"] >= 100:
             if await_between:
-                await asyncio.sleep(0.001)   # например, запрос в БД между проверкой и списанием
+                await asyncio.sleep(0.001)  # например, запрос в БД между проверкой и списанием
             balance["value"] -= 100
 
     async def withdraw() -> None:
         if use_lock:
-            async with lock:  # asyncio.Lock, НЕ threading.Lock! threading.Lock заблокировал бы весь loop
+            async with (
+                lock
+            ):  # asyncio.Lock, НЕ threading.Lock! threading.Lock заблокировал бы весь loop
                 await critical()
         else:
             await critical()
@@ -194,7 +199,9 @@ def main() -> None:
             got = run_counter(use_lock=False, split=split)
             print(f"   {label} без lock, switch={interval:g}s: {got:>8}  потеряно {expected - got}")
     got = run_counter(use_lock=True, split=True)
-    print(f"   чтение; f(); запись     с lock,   switch=1e-06s: {got:>8}  потеряно {expected - got}")
+    print(
+        f"   чтение; f(); запись     с lock,   switch=1e-06s: {got:>8}  потеряно {expected - got}"
+    )
     sys.setswitchinterval(default_interval)
 
     print("\n2) check-then-act, 10 снятий по 100 при балансе 100 (верный итог: 0)")
