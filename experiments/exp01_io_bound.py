@@ -32,9 +32,9 @@ import httpx
 from concurrency_lab.bench import measure, save_results
 from concurrency_lab.server import running_server
 
-N_REQUESTS = 100     # сколько запросов делаем за один прогон
-DELAY = 0.05         # задержка ответа сервера, сек (как типичный ответ БД/сервиса)
-REPEATS = 3          # повторов на вариант -> mean ± std
+N_REQUESTS = 100  # сколько запросов делаем за один прогон
+DELAY = 0.05  # задержка ответа сервера, сек (как типичный ответ БД/сервиса)
+REPEATS = 3  # повторов на вариант -> mean ± std
 CONCURRENCY = [1, 4, 16, 64, 100]  # одинаковые уровни для потоков и asyncio = честное сравнение
 
 
@@ -174,39 +174,77 @@ def main() -> None:
 
         print(f"N={N_REQUESTS}, delay={DELAY}s, repeats={REPEATS}")
         print("Бейзлайн:")
-        measurements.append(measure("sequential", lambda: run_sequential(url), REPEATS,
-                                    approach="sequential", concurrency=1))
+        measurements.append(
+            measure(
+                "sequential",
+                lambda: run_sequential(url),
+                REPEATS,
+                approach="sequential",
+                concurrency=1,
+            )
+        )
 
         print("Потоки, свой клиент в каждом потоке (первая версия):")
         for c in CONCURRENCY:
-            measurements.append(measure(f"threads-local c={c}",
-                                        lambda c=c: run_threads_local_client(url, c),
-                                        REPEATS, approach="threads_local_client", concurrency=c))
+            measurements.append(
+                measure(
+                    f"threads-local c={c}",
+                    lambda c=c: run_threads_local_client(url, c),
+                    REPEATS,
+                    approach="threads_local_client",
+                    concurrency=c,
+                )
+            )
             # lambda c=c — фиксируем текущее значение c. Без этого все lambda
             # захватили бы ПЕРЕМЕННУЮ c (late binding) и увидели бы последнее значение.
 
         print("Потоки, общий клиент (исправленная версия):")
         for c in CONCURRENCY:
-            measurements.append(measure(f"threads-shared c={c}",
-                                        lambda c=c: run_threads_shared_client(url, c),
-                                        REPEATS, approach="threads", concurrency=c))
+            measurements.append(
+                measure(
+                    f"threads-shared c={c}",
+                    lambda c=c: run_threads_shared_client(url, c),
+                    REPEATS,
+                    approach="threads",
+                    concurrency=c,
+                )
+            )
 
         print("asyncio:")
         for c in CONCURRENCY:
-            measurements.append(measure(f"asyncio c={c}", lambda c=c: run_asyncio(url, c),
-                                        REPEATS, approach="asyncio", concurrency=c))
+            measurements.append(
+                measure(
+                    f"asyncio c={c}",
+                    lambda c=c: run_asyncio(url, c),
+                    REPEATS,
+                    approach="asyncio",
+                    concurrency=c,
+                )
+            )
 
         print("Процессы:")
         for w in sorted({2, os.cpu_count() or 2, 16}):
             # (у пула процессов есть ещё накладные расходы: pickle аргументов и
             #  результатов, запуск интерпретаторов — порядка десятков мс на процесс)
-            measurements.append(measure(f"processes w={w}", lambda w=w: run_processes(url, w),
-                                        REPEATS, approach="processes", concurrency=w))
+            measurements.append(
+                measure(
+                    f"processes w={w}",
+                    lambda w=w: run_processes(url, w),
+                    REPEATS,
+                    approach="processes",
+                    concurrency=w,
+                )
+            )
 
     theory = {c: math.ceil(N_REQUESTS / c) * DELAY for c in CONCURRENCY}
-    save_results("exp01_io_bound", measurements,
-                 {"config": {"n_requests": N_REQUESTS, "delay": DELAY, "repeats": REPEATS},
-                  "theoretical_min": theory})
+    save_results(
+        "exp01_io_bound",
+        measurements,
+        {
+            "config": {"n_requests": N_REQUESTS, "delay": DELAY, "repeats": REPEATS},
+            "theoretical_min": theory,
+        },
+    )
 
 
 # Охрана __main__ ОБЯЗАТЕЛЬНА для multiprocessing на Windows и macOS:

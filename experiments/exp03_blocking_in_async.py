@@ -31,9 +31,9 @@ from concurrent.futures import ProcessPoolExecutor
 from concurrency_lab.bench import RESULTS_DIR, system_info
 from concurrency_lab.workloads import count_primes
 
-TICK = 0.010          # пульс 10 мс
-WORK = 0.3            # длительность одной "задачи" для sleep-сценариев
-PRIMES_N = 60_000     # подобрано примерно на ~0.1-0.3 с CPU
+TICK = 0.010  # пульс 10 мс
+WORK = 0.3  # длительность одной "задачи" для sleep-сценариев
+PRIMES_N = 60_000  # подобрано примерно на ~0.1-0.3 с CPU
 
 
 async def heartbeat(lags: list[float], stop: asyncio.Event) -> None:
@@ -64,8 +64,10 @@ async def scenario(name: str, job) -> dict:
         "p50_lag_ms": statistics.median(lags) * 1000 if lags else 0.0,
         "ticks": len(lags),
     }
-    print(f"  {name:<22} total={total:5.2f}s  max_lag={res['max_lag_ms']:7.1f} ms  "
-          f"median_lag={res['p50_lag_ms']:5.1f} ms  ticks={len(lags)}")
+    print(
+        f"  {name:<22} total={total:5.2f}s  max_lag={res['max_lag_ms']:7.1f} ms  "
+        f"median_lag={res['p50_lag_ms']:5.1f} ms  ticks={len(lags)}"
+    )
     return res
 
 
@@ -117,7 +119,8 @@ def main() -> None:
     results = asyncio.run(main_async())
     RESULTS_DIR.mkdir(exist_ok=True)
     (RESULTS_DIR / "exp03_blocking_in_async.json").write_text(
-        json.dumps({"system": system_info(), "results": results}, indent=2, ensure_ascii=False))
+        json.dumps({"system": system_info(), "results": results}, indent=2, ensure_ascii=False)
+    )
     print("\n  -> сохранено в results/exp03_blocking_in_async.json")
 
 

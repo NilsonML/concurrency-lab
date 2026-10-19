@@ -9,6 +9,7 @@ from __future__ import annotations
 import asyncio
 import sys
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from itertools import pairwise
 from pathlib import Path
 
 import httpx
@@ -32,7 +33,8 @@ def test_count_primes_known_values():
 def test_split_range_covers_everything():
     bounds = split_range(1003, 7)
     assert bounds[0][0] == 0 and bounds[-1][1] == 1003
-    assert all(a[1] == b[0] for a, b in zip(bounds, bounds[1:]))  # без дыр и пересечений
+    # pairwise: соседние пары (b0, b1), (b1, b2), ... — без дыр и пересечений
+    assert all(a[1] == b[0] for a, b in pairwise(bounds))
 
 
 @pytest.mark.parametrize("executor", [ThreadPoolExecutor, ProcessPoolExecutor])
@@ -40,7 +42,7 @@ def test_parallel_primes_equal_sequential(executor):
     chunks = split_range(20_000, 8)
     expected = sum(count_primes(a, b) for a, b in chunks)
     with executor(max_workers=2) as pool:
-        assert sum(pool.map(count_primes, *zip(*chunks))) == expected
+        assert sum(pool.map(count_primes, *zip(*chunks, strict=True))) == expected
 
 
 def test_server_responds_and_respects_delay():
